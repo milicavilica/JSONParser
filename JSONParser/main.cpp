@@ -8,7 +8,8 @@ int main()
         jp.parseFile("test.json.txt");
         jp.printFile();
         std::cout << std::endl;
-        jp.searchKey("id");
+        MyString st = "management/directorId";
+        jp.set(st,"name");
     }
     catch (std::invalid_argument& exc)
     {

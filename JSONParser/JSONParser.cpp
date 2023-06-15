@@ -253,10 +253,14 @@ void JSONParser::searchKey(const MyString& _key) const
 {
 	
 	std::cout << '"' << _key << "\": " << std::endl;
-	std::cout << '[' << std::endl;
+	std::cout << '[' << std::endl <<std::endl;
 	data->searchKey(_key);
 	std::cout << std::endl;
 	std::cout << ']';
+}
+void JSONParser::set(MyString& path, const MyString& val)
+{
+	data->findElem(path);
 }
 
 JSONParser::~JSONParser()

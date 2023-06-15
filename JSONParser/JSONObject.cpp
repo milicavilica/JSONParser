@@ -9,6 +9,7 @@ void JSONObject::free()
 			delete value[i];
 		}
 		delete[] value;
+		size = capacity = 0;
 	}
 }
 void JSONObject::copyFrom(const JSONObject& other)
@@ -127,12 +128,6 @@ char JSONObject::getType() const
 void JSONObject::searchKey(const MyString& _key) const
 {
 	if (stringBeginsWith(this->key, _key)) {
-		//for (size_t i = 0; i < size; i++)
-		//{
-		//	value[i]->printValue();
-		//	//if (i == size - 1)
-		//		//std::cout << ',' << std::endl;
-		//}
 		print();
 		std::cout << ',' << std::endl;
 		return;
@@ -140,9 +135,36 @@ void JSONObject::searchKey(const MyString& _key) const
 	for (size_t i = 0; i < size; i++)
 	{
 		value[i]->searchKey(_key);
-		//if(i == size -1)
-			//std::cout << ',' << std::endl;
 	}
+}
+void JSONObject::setValue(const MyString& newVal)
+{
+	
+}
+const JSON* JSONObject::findElem(MyString& path) const
+{
+	int i = 0;
+	while (path[i] != '/' && path[i] != '\0')
+		i++;
+	if (i != path.length())
+	{
+		MyString currentKey = path.substr(0, i);
+		path = path.substr(i + 1, path.length() - i - 1);
+		for (size_t i = 0; i < size; i++)
+		{
+			if (currentKey == this->value[i]->getKey())
+				return this->value[i]->findElem(path);
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			if (path == this->value[i]->getKey())
+				return this->value[i]->findElem(path);
+		}
+	}
+	return nullptr;
 }
 void JSONObject::printValue() const
 {

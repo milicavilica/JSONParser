@@ -65,6 +65,7 @@ void JSONArray::free()
 			delete data[i];
 		}
 		delete[] data;
+		size = capacity = 0;
 	}
 }
 void JSONArray::copyFrom(const JSONArray& other)
@@ -118,12 +119,6 @@ char JSONArray::getType() const
 void JSONArray::searchKey(const MyString& _key) const
 {	
 	if (stringBeginsWith(this->key, _key)) {
-		//for (size_t i = 0; i < size; i++)
-		//{
-		//	data[i]->printValue(); 
-		//	//if (i == size - 1)
-		//		//std::cout << ',' << std::endl;
-		//}
 		print();
 		std::cout << ',' << std::endl;
 		return;
@@ -131,9 +126,23 @@ void JSONArray::searchKey(const MyString& _key) const
 	for (size_t i = 0; i < size; i++)
 	{
 		data[i]->searchKey(_key);
-		//if (i == size - 1)
-			//std::cout << ',' << std::endl;
 	}
+}
+const JSON* JSONArray::findElem(MyString& path) const
+{
+	int i = 0;
+	while (path[i] != '/')
+		i++;
+	path = path.substr(i + 1, path.length() - i - 1);
+	for (size_t i = 0; i < size; i++)
+	{
+		this->data[i]->findElem(path);
+	}
+	return nullptr;
+}
+void JSONArray::setValue(const MyString& newVal)
+{
+	free();
 }
 JSONArray& JSONArray::operator=(const JSONArray& other)
 {

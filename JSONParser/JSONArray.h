@@ -22,11 +22,13 @@ public:
 	JSONArray& operator=(JSONArray&& other);
 
 	void print(unsigned tabsCnt = 0) const override;
+	void setValue(const MyString& newVal) override;
 	JSON* clone() const override;
 	char getType() const override;
 	void searchKey(const MyString& _key) const override;
 	void addElement(const JSON* el);
 	void printValue() const override;
+	const JSON* findElem(MyString& path) const override;
 
 	~JSONArray();
 };

@@ -41,5 +41,16 @@ char JSONSimpleValue::getType() const
 {
 	return SIMPLE_DATA;
 }
+const JSON* JSONSimpleValue::findElem(MyString& path) const
+{
+	if (path == key)
+		return this;
+	else
+		return nullptr;
+}
+void JSONSimpleValue::setValue(const MyString& newVal)
+{
+	this->value = newVal;
+}
 
 
