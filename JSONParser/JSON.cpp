@@ -10,5 +10,5 @@ const MyString& JSON::getKey() const
 }
 void JSON::setKey(const MyString& str)
 {
-	key = std::move(str);
+	key = str;
 }

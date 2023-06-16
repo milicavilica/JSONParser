@@ -20,12 +20,13 @@ public:
 	void setKey(const MyString& str);
 	const MyString& getKey() const;
 	virtual char getType() const = 0;
-	virtual void setValue(const MyString& newVal) = 0;
 
 	virtual void searchKey(const MyString& _key) const = 0;
 	virtual void print(unsigned tabsCnt = 0) const = 0;//unsigned tabs count = 0 idea by Nasko
 	virtual void printValue() const = 0;
-	virtual const JSON* findElem(MyString& path) const = 0;
+	virtual bool set(MyString& path, const char* newValue) = 0;
+	virtual bool deleteValue(MyString& path) = 0;
+	virtual void create(MyString& path, const char* value) = 0;
 	virtual JSON* clone() const = 0;
 	virtual ~JSON() = default;
 };

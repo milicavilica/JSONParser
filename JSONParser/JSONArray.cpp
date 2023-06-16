@@ -1,4 +1,6 @@
 #include "JSONArray.h"
+#include "JSONFactory.h"
+#include <sstream>
 
 
 JSONArray::JSONArray()
@@ -118,7 +120,7 @@ char JSONArray::getType() const
 }
 void JSONArray::searchKey(const MyString& _key) const
 {	
-	if (stringBeginsWith(this->key, _key)) {
+	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
 		print();
 		std::cout << ',' << std::endl;
 		return;
@@ -128,22 +130,53 @@ void JSONArray::searchKey(const MyString& _key) const
 		data[i]->searchKey(_key);
 	}
 }
-const JSON* JSONArray::findElem(MyString& path) const
+bool JSONArray::set(MyString& path, const char* newValue)
 {
-	int i = 0;
-	while (path[i] != '/')
-		i++;
-	path = path.substr(i + 1, path.length() - i - 1);
+	if (path == key)
+		return true;
+
+	if (key.length() != 0)
+	{
+		int j = 0;
+		while (path[j] != '/' && path[j] != '\0')
+			j++;
+		if (key != path.substr(0, j))
+			return false;
+		path = path.substr(j + 1, path.length() - j - 1);
+	};
+
 	for (size_t i = 0; i < size; i++)
 	{
-		this->data[i]->findElem(path);
+		data[i]->set(path, newValue);
 	}
-	return nullptr;
+
+	return false;
+	
+
 }
-void JSONArray::setValue(const MyString& newVal)
+bool JSONArray::deleteValue(MyString& path)
 {
-	free();
+	if (path == key)
+		return true;
+
+	if (key.length() != 0)
+	{
+		int j = 0;
+		while (path[j] != '/' && path[j] != '\0')
+			j++;
+		if (key != path.substr(0, j))
+			return false;
+		path = path.substr(j + 1, path.length() - j - 1);
+	};
+
+	for (size_t i = 0; i < size; i++)
+	{
+		data[i]->deleteValue(path);
+	}
+
+	return false;
 }
+
 JSONArray& JSONArray::operator=(const JSONArray& other)
 {
 	if (this != &other)
@@ -161,6 +194,16 @@ JSONArray& JSONArray::operator=(JSONArray&& other)
 		moveFrom(std::move(other));
 	}
 	return *this;
+}
+
+void JSONArray::create(MyString& path, const char* _value)
+{
+	if (path == key) {
+		std::stringstream ss(_value);
+		addElement(factory(_value[0], ss));
+	}
+	else
+		throw std::exception("incorrect path!");
 }
 
 JSONArray::~JSONArray()

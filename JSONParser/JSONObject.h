@@ -21,10 +21,11 @@ public:
 	JSONObject& operator=(JSONObject&& other);
 
 	void print(unsigned tabsCnt = 0) const override;
-	void setValue(const MyString& newVal) override;
 	void searchKey(const MyString& _key) const override;
 	JSON* clone() const override;
-	const JSON* findElem(MyString& path) const override;
+	bool set(MyString& path, const char* newValue) override;
+	bool deleteValue(MyString& path) override;
+	void create(MyString& path, const char* value) override;
 	char getType() const override;
 	void printValue() const override;
 	void addElement(const JSON* el);

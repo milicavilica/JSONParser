@@ -4,4 +4,4 @@
 #include "JSONObject.h"
 #include "JSONSimpleValue.h"
 
-JSON* factory(const char type, std::ifstream& ifs);
+JSON* factory(const char type, std::istream& ifs);

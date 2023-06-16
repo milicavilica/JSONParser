@@ -25,8 +25,8 @@ void removeQuotes(char* str)
 }
 bool stringBeginsWith(const MyString& string, const MyString& piece)
 {
-	if (piece.length() > string.length())
+	if (piece.length() - 1 > string.length())
 		return false;
-	MyString substr = string.substr(0, piece.length());
-	return substr == piece;
+	MyString substr = string.substr(0, piece.length() - 1);
+	return substr == piece.substr(0, piece.length() - 1);;
 }

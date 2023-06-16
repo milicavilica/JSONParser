@@ -2,7 +2,7 @@
 #include "Helper.h"
 #include <fstream>
 
-JSON* factory(const char type, std::ifstream& ifs)
+JSON* factory(const char type, std::istream& ifs)
 {
 	switch (type)
 	{

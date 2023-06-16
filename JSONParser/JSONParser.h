@@ -31,7 +31,9 @@ public:
 	void validateFile(std::ifstream& ifs) const;
 	void validateFile(const char* fileName) const;
 	void searchKey(const MyString& _key) const;
-	void set(MyString& path, const MyString& value);
+	void set(MyString& path, const char* value);
+	void deleteValue(MyString& path);
+	void create(MyString& path, const char* value);
 	
 
 	~JSONParser();

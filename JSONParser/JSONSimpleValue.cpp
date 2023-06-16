@@ -28,11 +28,19 @@ JSON* JSONSimpleValue::clone() const
 }
 void JSONSimpleValue::searchKey(const MyString& _key) const
 {
-	if (stringBeginsWith(this->getKey(), _key)) {
+	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key)
+	{
 		std::cout << '"' << value << '"';
 		std::cout << ',' << std::endl;
+		
 	}
 }
+bool JSONSimpleValue::deleteValue(MyString& path)
+{
+	return path == key;
+}
+void JSONSimpleValue::create(MyString& path, const char* value)
+{}
 void JSONSimpleValue::printValue() const
 {
 	std::cout << '"' << value << '"';
@@ -41,16 +49,9 @@ char JSONSimpleValue::getType() const
 {
 	return SIMPLE_DATA;
 }
-const JSON* JSONSimpleValue::findElem(MyString& path) const
+bool JSONSimpleValue::set(MyString& path, const char* newValue) 
 {
-	if (path == key)
-		return this;
-	else
-		return nullptr;
-}
-void JSONSimpleValue::setValue(const MyString& newVal)
-{
-	this->value = newVal;
+	return path == key;
 }
 
 

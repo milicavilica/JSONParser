@@ -1,4 +1,6 @@
 #include "JSONObject.h"
+#include "JSONFactory.h"
+#include <sstream>
 
 void JSONObject::free()
 {
@@ -127,7 +129,7 @@ char JSONObject::getType() const
 }
 void JSONObject::searchKey(const MyString& _key) const
 {
-	if (stringBeginsWith(this->key, _key)) {
+	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
 		print();
 		std::cout << ',' << std::endl;
 		return;
@@ -137,34 +139,98 @@ void JSONObject::searchKey(const MyString& _key) const
 		value[i]->searchKey(_key);
 	}
 }
-void JSONObject::setValue(const MyString& newVal)
+bool JSONObject::set(MyString& path, const char* newValue)
 {
+	if (path == key)
+		return true;
+
+	if (key.length() != 0)
+	{
+		int j = 0;
+		while (path[j] != '/' && path[j] != '\0')
+			j++;
+		if (key != path.substr(0, j))
+			return false;
+		path = path.substr(j + 1, path.length() - j - 1);
+	};
+
 	
+	for (size_t i = 0; i < size; i++)
+	{
+		if (this->value[i]->set(path, newValue))
+		{
+			this->value[i]->~JSON();
+			std::stringstream ss(newValue);
+			this->value[i] = factory(newValue[0], ss);
+			this->value[i]->setKey(path);
+		}
+	}
+	return false;
 }
-const JSON* JSONObject::findElem(MyString& path) const
+bool JSONObject::deleteValue(MyString& path)
 {
+	if (path == key)
+		return true;
+
+	if (key.length() != 0)
+	{
+		int j = 0;
+		while (path[j] != '/' && path[j] != '\0')
+			j++;
+		if (key != path.substr(0, j))
+			return false;
+		path = path.substr(j + 1, path.length() - j - 1);
+	};
+
+
+	for (size_t i = 0; i < size; i++)
+	{
+		if (this->value[i]->deleteValue(path))
+		{
+			this->value[i]->~JSON();
+			for (size_t j = i; j < size - 1; j++)
+			{
+				this->value[j] = this->value[j + 1];
+			}
+			this->value[size--] = nullptr;
+		}
+	}
+	return false;
+}
+void JSONObject::create(MyString& path, const char* newValue)
+{
+	if (path == key)
+		throw std::exception("an object with this key already exists!");
+
+	if (key.length() != 0)
+	{
+		int j = 0;
+		while (path[j] != '/' && path[j] != '\0')
+			j++;
+		if (key != path.substr(0, j))
+			throw std::exception("incorrect path!");
+		path = path.substr(j + 1, path.length() - j - 1);
+	};
+
+	int slashCount = 0;
 	int i = 0;
-	while (path[i] != '/' && path[i] != '\0')
-		i++;
-	if (i != path.length())
+	while (path[i] != '\0')
 	{
-		MyString currentKey = path.substr(0, i);
-		path = path.substr(i + 1, path.length() - i - 1);
+		if (path[i++] == '/')
+			slashCount++;
+	}
+	if (slashCount == 0)
+	{
+		std::stringstream ss(newValue);
+		addElement(factory(newValue[0], ss));
+		this->value[size - 1]->setKey(path);
+	}
+	else {
 		for (size_t i = 0; i < size; i++)
 		{
-			if (currentKey == this->value[i]->getKey())
-				return this->value[i]->findElem(path);
+			this->value[i]->create(path, newValue);
 		}
 	}
-	else
-	{
-		for (size_t i = 0; i < size; i++)
-		{
-			if (path == this->value[i]->getKey())
-				return this->value[i]->findElem(path);
-		}
-	}
-	return nullptr;
 }
 void JSONObject::printValue() const
 {

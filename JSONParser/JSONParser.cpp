@@ -258,9 +258,17 @@ void JSONParser::searchKey(const MyString& _key) const
 	std::cout << std::endl;
 	std::cout << ']';
 }
-void JSONParser::set(MyString& path, const MyString& val)
+void JSONParser::set(MyString& path, const char* val)
 {
-	data->findElem(path);
+	data->set(path, val);
+}
+void JSONParser::deleteValue(MyString& path)
+{
+	data->deleteValue(path);
+}
+void JSONParser::create(MyString& path, const char* newValue)
+{
+	data->create(path, newValue);
 }
 
 JSONParser::~JSONParser()

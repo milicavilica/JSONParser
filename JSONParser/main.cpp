@@ -8,8 +8,10 @@ int main()
         jp.parseFile("test.json.txt");
         jp.printFile();
         std::cout << std::endl;
-        MyString st = "management/directorId";
-        jp.set(st,"name");
+        MyString st = "age";
+        jp.create(st, "[\"1\", \"2\"]");
+        jp.printFile();
+
     }
     catch (std::invalid_argument& exc)
     {
