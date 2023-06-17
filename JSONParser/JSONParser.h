@@ -14,9 +14,9 @@ class JSONParser
 	void copyFrom(const JSONParser& other);
 	void moveFrom(JSONParser&& other);
 
-	bool validateQuotes(std::ifstream& ifs) const;
-	bool validateBrack(std::ifstream& ifs, const char ch) const;
-	void validateLogic(std::ifstream& ifs, char ch) const;
+	bool validateQuotes(std::istream& ifs) const;
+	bool validateBrack(std::istream& ifs, const char ch) const;
+	void validateLogic(std::istream& ifs, char ch) const;
 public:
 	JSONParser() = default;
 	JSONParser(const char* fileName);
@@ -28,12 +28,16 @@ public:
 
 	void parseFile(const char* fileName);
 	void printFile() const;
-	void validateFile(std::ifstream& ifs) const;
+
+	void validateFile(std::istream& ifs) const;
 	void validateFile(const char* fileName) const;
+
 	void searchKey(const MyString& _key) const;
+
 	void set(MyString& path, const char* value);
 	void deleteValue(MyString& path);
 	void create(MyString& path, const char* value);
+	void move(MyString& from, MyString& to);
 	
 
 	~JSONParser();

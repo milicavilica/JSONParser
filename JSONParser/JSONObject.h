@@ -23,11 +23,20 @@ public:
 	void print(unsigned tabsCnt = 0) const override;
 	void searchKey(const MyString& _key) const override;
 	JSON* clone() const override;
-	bool set(MyString& path, const char* newValue) override;
+
+	bool set(MyString& path, const char* newValue, bool& succes) override;
+	bool set(MyString& path, const JSON* element, bool& succes) override;
+
 	bool deleteValue(MyString& path) override;
+
 	void create(MyString& path, const char* value) override;
+	void create(MyString& path, const JSON* element) override;
+
+	JSON* findElement(MyString& path) override;
+
 	char getType() const override;
 	void printValue() const override;
+
 	void addElement(const JSON* el);
 
 	~JSONObject();

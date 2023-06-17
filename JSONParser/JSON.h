@@ -24,9 +24,12 @@ public:
 	virtual void searchKey(const MyString& _key) const = 0;
 	virtual void print(unsigned tabsCnt = 0) const = 0;//unsigned tabs count = 0 idea by Nasko
 	virtual void printValue() const = 0;
-	virtual bool set(MyString& path, const char* newValue) = 0;
+	virtual bool set(MyString& path, const char* newValue, bool& succes) = 0;
+	virtual bool set(MyString& path, const JSON* element, bool& succes) = 0;
 	virtual bool deleteValue(MyString& path) = 0;
 	virtual void create(MyString& path, const char* value) = 0;
+	virtual void create(MyString& path, const JSON* element) = 0;
+	virtual JSON* findElement(MyString& path) = 0;
 	virtual JSON* clone() const = 0;
 	virtual ~JSON() = default;
 };

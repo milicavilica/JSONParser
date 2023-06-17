@@ -7,11 +7,16 @@ int main()
         JSONParser jp;
         jp.parseFile("test.json.txt");
         jp.printFile();
-        std::cout << std::endl;
-        MyString st = "age";
-        jp.create(st, "[\"1\", \"2\"]");
+        std::cout << std::endl << std::endl;
+        //
+       
+        char path[1024]{};
+        char value[1024]{};
+        std::cin.getline(path, 1024);
+        std::cin.getline(value, 1024);
+        MyString p(std::move(path));
+        jp.set(p, value);
         jp.printFile();
-
     }
     catch (std::invalid_argument& exc)
     {

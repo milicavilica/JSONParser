@@ -17,9 +17,16 @@ void JSONSimpleValue::print(unsigned tabsCnt) const
 	{
 		std::cout << '\t';
 	}
-	if (getKey() != "")
+	if (key.length() != 0)
 		std::cout << '"' <<  getKey()  << '"' << ":";
 	std::cout << '"' << getValue() << '"';
+}
+
+JSON* JSONSimpleValue::findElement(MyString& path)
+{
+	if (path == key)
+		return this;
+	return nullptr;
 }
 
 JSON* JSONSimpleValue::clone() const
@@ -41,6 +48,8 @@ bool JSONSimpleValue::deleteValue(MyString& path)
 }
 void JSONSimpleValue::create(MyString& path, const char* value)
 {}
+void JSONSimpleValue::create(MyString& path, const JSON* element)
+{}
 void JSONSimpleValue::printValue() const
 {
 	std::cout << '"' << value << '"';
@@ -49,7 +58,11 @@ char JSONSimpleValue::getType() const
 {
 	return SIMPLE_DATA;
 }
-bool JSONSimpleValue::set(MyString& path, const char* newValue) 
+bool JSONSimpleValue::set(MyString& path, const char* newValue, bool& succes) 
+{
+	return path == key;
+}
+bool JSONSimpleValue::set(MyString& path, const JSON* element, bool& succes)
 {
 	return path == key;
 }

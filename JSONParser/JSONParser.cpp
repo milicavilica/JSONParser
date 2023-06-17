@@ -74,7 +74,7 @@ void JSONParser::parseFile(const char* fileName)
 	ifs.close();
 
 }
-bool JSONParser::validateQuotes(std::ifstream& ifs) const
+bool JSONParser::validateQuotes(std::istream& ifs) const
 {
 	size_t currentPos = ifs.tellg();
 	int counter = 0;
@@ -91,7 +91,7 @@ bool JSONParser::validateQuotes(std::ifstream& ifs) const
 	ifs.seekg(currentPos);
 	return counter % 2 == 0;
 }
-bool JSONParser::validateBrack(std::ifstream& ifs, const char ch) const
+bool JSONParser::validateBrack(std::istream& ifs, const char ch) const
 {
 	size_t currentPos = ifs.tellg();
 	int counter = 0;
@@ -123,7 +123,7 @@ bool JSONParser::validateBrack(std::ifstream& ifs, const char ch) const
 	ifs.seekg(currentPos);
 	return counter == 0;
 }
-void JSONParser::validateLogic(std::ifstream& ifs, char c) const
+void JSONParser::validateLogic(std::istream& ifs, char c) const
 {
 	size_t currentPos = ifs.tellg();
 	switch (c)
@@ -224,7 +224,7 @@ void JSONParser::validateLogic(std::ifstream& ifs, char c) const
 	ifs.clear();
 	ifs.seekg(currentPos);
 }
-void JSONParser::validateFile(std::ifstream& ifs) const
+void JSONParser::validateFile(std::istream& ifs) const
 {
 	if (!validateQuotes(ifs))
 		throw std::exception("incorrect placemen of quotes in file!");
@@ -260,7 +260,12 @@ void JSONParser::searchKey(const MyString& _key) const
 }
 void JSONParser::set(MyString& path, const char* val)
 {
-	data->set(path, val);
+	std::stringstream ss(val);
+	validateFile(ss);
+	bool succes = false;
+	data->set(path, val, succes);
+	if (!succes)
+		throw std::exception("incorrect path!");
 }
 void JSONParser::deleteValue(MyString& path)
 {
@@ -268,7 +273,18 @@ void JSONParser::deleteValue(MyString& path)
 }
 void JSONParser::create(MyString& path, const char* newValue)
 {
+	std::stringstream ss(newValue);
+	validateFile(ss);
 	data->create(path, newValue);
+}
+void JSONParser::move(MyString& from, MyString& to)
+{
+	JSON* element = data->findElement(from);
+	data->deleteValue(from);
+	bool succes = false;
+	data->set(to, element, succes);
+	if (!succes)
+		throw std::exception("incorrect path!");
 }
 
 JSONParser::~JSONParser()
