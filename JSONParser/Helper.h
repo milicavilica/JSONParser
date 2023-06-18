@@ -9,3 +9,4 @@ bool cutPathAndCheckKey(MyString& path, const MyString& key);
 void cutPath(MyString& path);
 bool isThereAColon(std::istream& ifs);
 size_t countSlashes(const MyString& path);
+size_t toNum(const char* str);

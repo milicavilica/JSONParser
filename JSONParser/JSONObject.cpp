@@ -95,19 +95,22 @@ void JSONObject::addElement(const JSON* el)
 	if(el != nullptr)
 		value[size++] = el->clone();
 }
-void JSONObject::print(std::ostream& os, unsigned tabsCnt) const
+
+void JSONObject::print(std::ostream& os, int& withKey, unsigned tabsCnt) const
 {
 	//printing tabs
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
 		os << '\t';
 	}
-	if (key.length() != 0)
-		os  << '"' << getKey() << '"' << ':';
+	if (withKey > 0 && getKey() != "")
+		os << '"' << getKey() << '"' << ':';
 	os << '{' << std::endl;
+
+	withKey++;
 	for (size_t i = 0; i < size; i++)
 	{
-		value[i]->print(os, tabsCnt + 1);
+		value[i]->print(os, withKey, tabsCnt + 1);
 		if (i != size - 1)
 			os << ',' << std::endl;
 	}
@@ -127,16 +130,18 @@ char JSONObject::getType() const
 {
 	return OBJECT;
 }
-void JSONObject::searchKey(const MyString& _key) const
+void JSONObject::searchKey(const MyString& _key, bool& success) const
 {
 	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
-		print(std::cout);
+		int withKey = 0;
+		print(std::cout, withKey);
 		std::cout << ',' << std::endl;
+		success = true;
 		return;
 	}
 	for (size_t i = 0; i < size; i++)
 	{
-		value[i]->searchKey(_key);
+		value[i]->searchKey(_key, success);
 	}
 }
 
@@ -144,7 +149,8 @@ void JSONObject::save(MyString& path, std::ostream& ofs, bool& success) const
 {
 	if (path == key) {
 		success = true;
-		print(ofs);
+		int withKey = 1;
+		print(ofs, withKey);
 	}
 
 	if (key.length() != 0 && countSlashes(path) > 0)
@@ -194,10 +200,12 @@ bool JSONObject::set(MyString& path, const JSON* element, bool& success)
 	}
 	return false;
 }
-bool JSONObject::deleteValue(MyString& path)
+bool JSONObject::deleteValue(MyString& path, bool& success)
 {
-	if (path == key)
+	if (path == key) {
+		success = true;
 		return true;
+	}
 
 	if (key.length() != 0)
 	{
@@ -208,7 +216,7 @@ bool JSONObject::deleteValue(MyString& path)
 
 	for (size_t i = 0; i < size; i++)
 	{
-		if (this->value[i]->deleteValue(path))
+		if (this->value[i]->deleteValue(path, success))
 		{
 			this->value[i]->~JSON();
 			for (size_t j = i; j < size - 1; j++)
@@ -216,12 +224,13 @@ bool JSONObject::deleteValue(MyString& path)
 				this->value[j] = this->value[j + 1];
 			}
 			this->value[size--] = nullptr;
+			std::cout << "Element successfully deleted!" << std::endl;
 			return false;
 		}
 	}
 	return false;
 }
-void JSONObject::create(MyString& path, const char* newValue)
+void JSONObject::create(MyString& path, const char* newValue, bool& success)
 {
 	std::stringstream ss(newValue);
 	JSON* element = factory(newValue[0], ss);
@@ -231,12 +240,12 @@ void JSONObject::create(MyString& path, const char* newValue)
 		cutPath(elementKey);
 	}
 	element->setKey(elementKey);
-	create(path, element);
+	create(path, element, success);
 }
-void JSONObject::create(MyString& path, const JSON* element)
+void JSONObject::create(MyString& path, const JSON* element, bool& success)
 {
 	if (path == key)
-		throw std::exception("an object with this key already exists!");
+		throw std::exception("An object with this key already exists!");
 
 	if (key.length() != 0)
 	{
@@ -256,14 +265,15 @@ void JSONObject::create(MyString& path, const JSON* element)
 		for (size_t i = 0; i < size; i++)
 		{
 			if(this->value[i]->getKey() == path)
-				throw std::exception("an object with this key already exists!");
+				throw std::exception("An object with this key already exists!");
 		}
 		addElement(element);
+		success = true;
 	}
 	else {
 		for (size_t i = 0; i < size; i++)
 		{
-			this->value[i]->create(path, element);
+			this->value[i]->create(path, element, success);
 		}
 	}
 }

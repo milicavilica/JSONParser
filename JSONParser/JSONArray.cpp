@@ -12,22 +12,23 @@ JSONArray::JSONArray(const MyString& key) : JSON(key)
 {
 	data = new JSON * [capacity];
 }
-void JSONArray::print(std::ostream& os, unsigned tabsCnt) const
+void JSONArray::print(std::ostream& os ,int& withKey, unsigned tabsCnt) const
 {
 	//printing tabs
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
 		os << '\t';
 	}
-	if (getKey() != "") 
+	if (withKey && key.length() != 0)
 		os << '"' << getKey() << '"' << ':';
-	
 	os << '[' << std::endl;
-	
+
+	withKey++;
+
 	for (size_t i = 0; i < size; i++)
 	{
-		data[i]->print(os, tabsCnt + 1);
-		if(i != size - 1)
+		data[i]->print(os, withKey, tabsCnt + 1);
+		if (i != size - 1)
 			os << ',' << std::endl;
 	}
 	//printing tabs
@@ -120,23 +121,26 @@ char JSONArray::getType() const
 {
 	return ARRAY;
 }
-void JSONArray::searchKey(const MyString& _key) const
+void JSONArray::searchKey(const MyString& _key, bool& success) const
 {	
 	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
-		print(std::cout);
+		int withKey = 0;
+		print(std::cout, withKey);
 		std::cout << ',' << std::endl;
+		success = true;
 		return;
 	}
 	for (size_t i = 0; i < size; i++)
 	{
-		data[i]->searchKey(_key);
+		data[i]->searchKey(_key, success);
 	}
 }
 void JSONArray::save(MyString& path, std::ostream& ofs, bool& success) const
 {
 	if (path == key) {
 		success = true;
-		print(ofs);
+		int withKey = 1;
+		print(ofs, withKey);
 	}
 	if (countSlashes(path) == 0)
 		return;
@@ -165,7 +169,7 @@ bool JSONArray::set(MyString& path, const JSON* element, bool& success)
 	if (path == key)
 		return true;
 	
-	if (key.length() != 0 && countSlashes(path) > 0)
+	/*if (key.length() != 0 && countSlashes(path) > 0)
 	{
 		if (!cutPathAndCheckKey(path, key))
 			return false;
@@ -174,27 +178,27 @@ bool JSONArray::set(MyString& path, const JSON* element, bool& success)
 	for (size_t i = 0; i < size; i++)
 	{
 		data[i]->set(path, element, success);
-	}
+	}*/
 
 	return false;
 }
-bool JSONArray::deleteValue(MyString& path)
+bool JSONArray::deleteValue(MyString& path, bool& success)
 {
-	if (path == key)
-		return true;
+	success = (path == key);
+	return success;
 
-	if (key.length() != 0 && countSlashes(path) > 0)
-	{
-		if (!cutPathAndCheckKey(path, key))
-			return false;
-	};
+	//if (key.length() != 0 && countSlashes(path) > 0)
+	//{
+	//	if (!cutPathAndCheckKey(path, key))
+	//		return false;
+	//};
 
-	for (size_t i = 0; i < size; i++)
-	{
-		data[i]->deleteValue(path);
-	}
+	//for (size_t i = 0; i < size; i++)
+	//{
+	//	data[i]->deleteValue(path);
+	//}
 
-	return false;
+	//return false;
 }
 
 JSONArray& JSONArray::operator=(const JSONArray& other)
@@ -224,20 +228,20 @@ JSON* JSONArray::findElement(MyString& path)
 	return nullptr;
 }
 
-void JSONArray::create(MyString& path, const char* _value)
+void JSONArray::create(MyString& path, const char* _value, bool& success)
 {
 	if (path == key) {
 		std::stringstream ss(_value);
 		addElement(factory(_value[0], ss));
+		success = true;
 	}
-	else
-		throw std::exception("incorrect path!");
 }
-void JSONArray::create(MyString& path, const JSON* element)
+void JSONArray::create(MyString& path, const JSON* element, bool& success)
 {
 	if (path == key) {
 		
 		addElement(element);
+		success = true;
 	}
 	
 }

@@ -21,18 +21,18 @@ public:
 	JSONArray& operator=(const JSONArray& other);
 	JSONArray& operator=(JSONArray&& other);
 
-	void print(std::ostream& os, unsigned tabsCnt = 0) const override;
+	void print(std::ostream& os, int& withKey, unsigned tabsCnt = 0) const override;
 
 	void save(MyString& path, std::ostream& ofs, bool& success) const override;
 
 	JSON* clone() const override;
 	char getType() const override;
 
-	void searchKey(const MyString& _key) const override;
-	bool deleteValue(MyString& path) override;
+	void searchKey(const MyString& _key, bool& success) const override;
+	bool deleteValue(MyString& path, bool& success) override;
 
-	void create(MyString& path, const char* value) override;
-	void create(MyString& path, const JSON* element) override;
+	void create(MyString& path, const char* value, bool& success) override;
+	void create(MyString& path, const JSON* element, bool& success) override;
 
 	JSON* findElement(MyString& path) override;
 	void addElement(const JSON* el);

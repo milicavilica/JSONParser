@@ -136,8 +136,10 @@
     <ClCompile Include="JSONSimpleValue.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyString.cpp" />
+    <ClCompile Include="Run.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="JSONArray.h" />
     <ClInclude Include="JSONFactory.h" />
@@ -146,6 +148,7 @@
     <ClInclude Include="JSONObject.h" />
     <ClInclude Include="JSON.h" />
     <ClInclude Include="MyString.h" />
+    <ClInclude Include="Run.h" />
     <ClInclude Include="Vector.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

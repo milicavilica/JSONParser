@@ -18,11 +18,16 @@ class JSONParser
 	bool validateQuotes(std::istream& ifs) const;
 	bool validateBrack(std::istream& ifs, const char ch) const;
 	void validateLogic(std::istream& ifs, char ch) const;
+
+	
 public:
 	JSONParser() = default;
 	JSONParser(const char* fileName);
 	JSONParser(const JSONParser& other);
 	JSONParser(JSONParser&& other);
+
+	bool exists() const;
+	const MyString& getSourceFile() const;
 
 	JSONParser& operator=(const JSONParser& other);
 	JSONParser& operator=(JSONParser&& other);
@@ -46,6 +51,8 @@ public:
 	void saveas(const char* filename, MyString& path) const;
 	void saveas(const char* filename) const;
 	
+	static void printMenu();
 
 	~JSONParser();
 };
+

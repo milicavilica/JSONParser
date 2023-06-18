@@ -85,3 +85,14 @@ size_t countSlashes(const MyString& path)
 	}
 	return slashCount;
 }
+size_t toNum(const char* str)
+{
+	int i = 0;
+	size_t num = 0;
+	while (str[i] != '\0')
+	{
+		num += (str[i++] - '0');
+		num *= 10;
+	}
+	return num/10;
+}
