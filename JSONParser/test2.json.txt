@@ -1,0 +1,10 @@
+"offices":[
+	{
+		"name":"Headquarters",
+		"address":"Sofia"
+	},
+	{
+		"name":"Front Office",
+		"address":"New York City"
+	}
+]

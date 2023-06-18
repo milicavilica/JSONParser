@@ -11,17 +11,25 @@ const MyString& JSONSimpleValue::getValue() const
 	return value;
 }
 
-void JSONSimpleValue::print(unsigned tabsCnt) const
+void JSONSimpleValue::print(std::ostream& os, unsigned tabsCnt) const
 {
+	//printing tabs
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
-		std::cout << '\t';
+		os << '\t';
 	}
 	if (key.length() != 0)
-		std::cout << '"' <<  getKey()  << '"' << ":";
-	std::cout << '"' << getValue() << '"';
+		os << '"' <<  getKey()  << '"' << ":";
+	printValue(os);
 }
-
+void JSONSimpleValue::save(MyString& path, std::ostream& ofs, bool& success) const
+{
+	if (path == key) {
+		success = true;
+		print(ofs);
+		ofs << std::endl;
+	}
+}
 JSON* JSONSimpleValue::findElement(MyString& path)
 {
 	if (path == key)
@@ -50,19 +58,19 @@ void JSONSimpleValue::create(MyString& path, const char* value)
 {}
 void JSONSimpleValue::create(MyString& path, const JSON* element)
 {}
-void JSONSimpleValue::printValue() const
+void JSONSimpleValue::printValue(std::ostream& os) const
 {
-	std::cout << '"' << value << '"';
+	os << '"' << value << '"';
 }
 char JSONSimpleValue::getType() const
 {
 	return SIMPLE_DATA;
 }
-bool JSONSimpleValue::set(MyString& path, const char* newValue, bool& succes) 
+bool JSONSimpleValue::set(MyString& path, const char* newValue, bool& success) 
 {
 	return path == key;
 }
-bool JSONSimpleValue::set(MyString& path, const JSON* element, bool& succes)
+bool JSONSimpleValue::set(MyString& path, const JSON* element, bool& success)
 {
 	return path == key;
 }

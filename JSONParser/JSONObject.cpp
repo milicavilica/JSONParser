@@ -95,29 +95,29 @@ void JSONObject::addElement(const JSON* el)
 	if(el != nullptr)
 		value[size++] = el->clone();
 }
-void JSONObject::print(unsigned tabsCnt) const
+void JSONObject::print(std::ostream& os, unsigned tabsCnt) const
 {
 	//printing tabs
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
-		std::cout << '\t';
+		os << '\t';
 	}
 	if (key.length() != 0)
-		std::cout << '"' << getKey() << '"' << ':';
-	std::cout << '{' << std::endl;
+		os  << '"' << getKey() << '"' << ':';
+	os << '{' << std::endl;
 	for (size_t i = 0; i < size; i++)
 	{
-		value[i]->print(tabsCnt + 1);
+		value[i]->print(os, tabsCnt + 1);
 		if (i != size - 1)
-			std::cout << ',' << std::endl;
+			os << ',' << std::endl;
 	}
 	//printing tabs
-	std::cout << std::endl;
+	os << std::endl;
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
-		std::cout << '\t';
+		os << '\t';
 	}
-	std::cout << '}';
+	os << '}';
 }
 JSON* JSONObject::clone() const
 {
@@ -130,7 +130,7 @@ char JSONObject::getType() const
 void JSONObject::searchKey(const MyString& _key) const
 {
 	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
-		print();
+		print(std::cout);
 		std::cout << ',' << std::endl;
 		return;
 	}
@@ -139,7 +139,26 @@ void JSONObject::searchKey(const MyString& _key) const
 		value[i]->searchKey(_key);
 	}
 }
-bool JSONObject::set(MyString& path, const char* newValue, bool& succes)
+
+void JSONObject::save(MyString& path, std::ostream& ofs, bool& success) const
+{
+	if (path == key) {
+		success = true;
+		print(ofs);
+	}
+
+	if (key.length() != 0 && countSlashes(path) > 0)
+	{
+		cutPathAndCheckKey(path, key);
+	}
+
+	for (size_t i = 0; i < size; i++)
+	{
+		this->value[i]->save(path, ofs, success);
+	}
+}
+
+bool JSONObject::set(MyString& path, const char* newValue, bool& success)
 {
 	std::stringstream ss(newValue);
 	JSON* element = factory(newValue[0], ss);//->clone();
@@ -149,10 +168,10 @@ bool JSONObject::set(MyString& path, const char* newValue, bool& succes)
 		cutPath(elementKey);
 	}
 	element->setKey(elementKey);
-	return set(path, element, succes);
+	return set(path, element, success);
 }
 
-bool JSONObject::set(MyString& path, const JSON* element, bool& succes)
+bool JSONObject::set(MyString& path, const JSON* element, bool& success)
 {
 	if (path == key)
 		return true;
@@ -165,11 +184,11 @@ bool JSONObject::set(MyString& path, const JSON* element, bool& succes)
 	
 	for (size_t i = 0; i < size; i++)
 	{
-		if (this->value[i]->set(path, element, succes))
+		if (this->value[i]->set(path, element, success))
 		{
 			this->value[i]->~JSON();
 			this->value[i] = element->clone();
-			succes = true;
+			success = true;
 			return false;
 		}
 	}
@@ -206,7 +225,12 @@ void JSONObject::create(MyString& path, const char* newValue)
 {
 	std::stringstream ss(newValue);
 	JSON* element = factory(newValue[0], ss);
-	element->setKey(path);
+	MyString elementKey = path;
+	while (countSlashes(elementKey) != 0)
+	{
+		cutPath(elementKey);
+	}
+	element->setKey(elementKey);
 	create(path, element);
 }
 void JSONObject::create(MyString& path, const JSON* element)
@@ -261,13 +285,13 @@ JSON* JSONObject::findElement(MyString& path)
 	}
 	return element;
 }
-void JSONObject::printValue() const
+void JSONObject::printValue(std::ostream& os) const
 {
 	for (size_t i = 0; i < size; i++)
 	{
-		value[i]->printValue();
+		value[i]->printValue(os);
 		if (i != size - 1)
-			std::cout << ',' << std::endl;
+			os << ',' << std::endl;
 	}
 }
 JSONObject::~JSONObject()

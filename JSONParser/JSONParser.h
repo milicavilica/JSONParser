@@ -10,6 +10,7 @@
 class JSONParser
 {
 	JSON* data = nullptr;
+	MyString sourceFile;
 	void free();
 	void copyFrom(const JSONParser& other);
 	void moveFrom(JSONParser&& other);
@@ -38,6 +39,12 @@ public:
 	void deleteValue(MyString& path);
 	void create(MyString& path, const char* value);
 	void move(MyString& from, MyString& to);
+
+	void save(MyString& path) const ;
+	void save() const;
+
+	void saveas(const char* filename, MyString& path) const;
+	void saveas(const char* filename) const;
 	
 
 	~JSONParser();

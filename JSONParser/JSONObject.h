@@ -20,22 +20,24 @@ public:
 	JSONObject& operator=(const JSONObject& other);
 	JSONObject& operator=(JSONObject&& other);
 
-	void print(unsigned tabsCnt = 0) const override;
+	void print(std::ostream& os, unsigned tabsCnt = 0) const override;
 	void searchKey(const MyString& _key) const override;
 	JSON* clone() const override;
 
-	bool set(MyString& path, const char* newValue, bool& succes) override;
-	bool set(MyString& path, const JSON* element, bool& succes) override;
+	bool set(MyString& path, const char* newValue, bool& success) override;
+	bool set(MyString& path, const JSON* element, bool& success) override;
 
 	bool deleteValue(MyString& path) override;
 
 	void create(MyString& path, const char* value) override;
 	void create(MyString& path, const JSON* element) override;
 
+	void save(MyString& path, std::ostream& ofs, bool& success) const override;
+
 	JSON* findElement(MyString& path) override;
 
 	char getType() const override;
-	void printValue() const override;
+	void printValue(std::ostream& os) const override;
 
 	void addElement(const JSON* el);
 

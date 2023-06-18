@@ -15,11 +15,13 @@ void JSONParser::free()
 void JSONParser::copyFrom(const JSONParser& other)
 {
 	data = other.data->clone();
+	sourceFile = other.sourceFile;
 }
 void JSONParser::moveFrom(JSONParser&& other)
 {
 	data = other.data;
 	other.data = nullptr;
+	sourceFile = std::move(other.sourceFile);
 }
 JSONParser::JSONParser(const JSONParser& other)
 {
@@ -55,6 +57,7 @@ void JSONParser::parseFile(const char* fileName)
 	if (!ifs.is_open())
 		throw std::exception("file couldn't be opened");
 
+	sourceFile = fileName;
 	try {
 		validateFile(ifs);
 	}
@@ -158,6 +161,8 @@ void JSONParser::validateLogic(std::istream& ifs, char c) const
 				throw std::exception("cannot have key-value pairs in an array");
 
 			c = ifs.get();
+			if (c == ']')
+				break;
 		}
 		currentPos = ifs.tellg();
 		
@@ -190,6 +195,8 @@ void JSONParser::validateLogic(std::istream& ifs, char c) const
 				else if(ch == '[')
 					validateLogic(ifs, '[');
 				ch = ifs.get();
+				if (ch == '}')
+					break;
 				if(ch != ',' && ch != '\n')
 					throw std::exception("wrong kvp syntax in an object!");
 
@@ -235,7 +242,7 @@ void JSONParser::validateFile(std::istream& ifs) const
 	char c;
 	c = ifs.get();
 	validateLogic(ifs, c);
-	std::cout << "file succesfully validated!" << std::endl;
+	std::cout << "file successfully validated!" << std::endl;
 }
 void JSONParser::validateFile(const char* fileName) const
 {
@@ -247,7 +254,7 @@ void JSONParser::validateFile(const char* fileName) const
 }
 void JSONParser::printFile() const
 {
-	data->print();
+	data->print(std::cout);
 }
 void JSONParser::searchKey(const MyString& _key) const
 {
@@ -262,9 +269,9 @@ void JSONParser::set(MyString& path, const char* val)
 {
 	std::stringstream ss(val);
 	validateFile(ss);
-	bool succes = false;
-	data->set(path, val, succes);
-	if (!succes)
+	bool success = false;
+	data->set(path, val, success);
+	if (!success)
 		throw std::exception("incorrect path!");
 }
 void JSONParser::deleteValue(MyString& path)
@@ -281,10 +288,54 @@ void JSONParser::move(MyString& from, MyString& to)
 {
 	JSON* element = data->findElement(from);
 	data->deleteValue(from);
-	bool succes = false;
-	data->set(to, element, succes);
-	if (!succes)
+	bool success = false;
+	data->set(to, element, success);
+	if (!success)
 		throw std::exception("incorrect path!");
+}
+
+void JSONParser::save(MyString& path) const
+{
+	std::ofstream ofs(sourceFile.c_str(), std::ios::out | std::ios::trunc);
+	if(!ofs.is_open())
+		throw std::exception("couldn't open file!");
+
+	bool success = false;
+	data->save(path, ofs, success);
+	if (!success)
+		throw std::exception("incorrect path!");
+
+	ofs.close();
+}
+void JSONParser::save() const
+{
+	std::ofstream ofs(sourceFile.c_str(), std::ios::out | std::ios::trunc);
+	if (!ofs.is_open())
+		throw std::exception("couldn't open file!");
+	data->print(ofs);
+	ofs.close();
+}
+
+void JSONParser::saveas(const char* filename, MyString& path) const
+{
+	std::ofstream ofs(filename, std::ios::out | std::ios::trunc);
+	if (!ofs.is_open())
+		throw std::exception("couldn't open file!");
+
+	bool success = false;
+	data->save(path, ofs, success);
+	if (!success)
+		throw std::exception("incorrect path!");
+
+	ofs.close();
+}
+void JSONParser::saveas(const char* filename) const
+{
+	std::ofstream ofs(filename, std::ios::out | std::ios::trunc);
+	if (!ofs.is_open())
+		throw std::exception("couldn't open file!");
+	data->print(ofs);
+	ofs.close();
 }
 
 JSONParser::~JSONParser()

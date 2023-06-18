@@ -12,41 +12,43 @@ JSONArray::JSONArray(const MyString& key) : JSON(key)
 {
 	data = new JSON * [capacity];
 }
-void JSONArray::print(unsigned tabsCnt) const
+void JSONArray::print(std::ostream& os, unsigned tabsCnt) const
 {
+	//printing tabs
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
-		std::cout << '\t';
+		os << '\t';
 	}
 	if (getKey() != "") 
-		std::cout << '"' << getKey() << '"' << ':';
+		os << '"' << getKey() << '"' << ':';
 	
-	std::cout << '[' << std::endl;
+	os << '[' << std::endl;
 	
 	for (size_t i = 0; i < size; i++)
 	{
-		data[i]->print(tabsCnt + 1);
+		data[i]->print(os, tabsCnt + 1);
 		if(i != size - 1)
-			std::cout << ',' << std::endl;
+			os << ',' << std::endl;
 	}
-	std::cout << std::endl;
+	//printing tabs
+	os << std::endl;
 	for (size_t i = 0; i < tabsCnt; i++)
 	{
-		std::cout << '\t';
+		os << '\t';
 	}
-	std::cout<< ']';
+	os << ']';
 }
 JSON* JSONArray::clone() const
 {
 	return new JSONArray(*this);
 }
-void JSONArray::printValue() const
+void JSONArray::printValue(std::ostream& os) const
 {
 	for (size_t i = 0; i < size; i++)
 	{
-		data[i]->printValue();
+		data[i]->printValue(os);
 		if (i != size - 1)
-			std::cout << ',' << std::endl;
+			os << ',' << std::endl;
 	}
 }
 
@@ -121,7 +123,7 @@ char JSONArray::getType() const
 void JSONArray::searchKey(const MyString& _key) const
 {	
 	if ((_key[_key.length() - 1] == '*' && stringBeginsWith(this->getKey(), _key)) || this->key == _key) {
-		print();
+		print(std::cout);
 		std::cout << ',' << std::endl;
 		return;
 	}
@@ -130,22 +132,48 @@ void JSONArray::searchKey(const MyString& _key) const
 		data[i]->searchKey(_key);
 	}
 }
-bool JSONArray::set(MyString& path, const char* newValue, bool& succes)
+void JSONArray::save(MyString& path, std::ostream& ofs, bool& success) const
+{
+	if (path == key) {
+		success = true;
+		print(ofs);
+	}
+	if (countSlashes(path) == 0)
+		return;
+	if (key.length() != 0 )
+	{
+		if (!cutPathAndCheckKey(path, key))
+			return;
+	}
+
+	for (size_t i = 0; i < size; i++)
+	{
+		data[i]->save(path, ofs, success);
+	}
+}
+
+bool JSONArray::set(MyString& path, const char* newValue, bool& success)
 {
 	std::stringstream ss(newValue);
 	JSON* element = factory(newValue[0], ss);
 	element->setKey(path);
-	return set(path, element, succes);
+	return set(path, element, success);
 
 }
-bool JSONArray::set(MyString& path, const JSON* element, bool& succes)
+bool JSONArray::set(MyString& path, const JSON* element, bool& success)
 {
 	if (path == key)
 		return true;
 	
+	if (key.length() != 0 && countSlashes(path) > 0)
+	{
+		if (!cutPathAndCheckKey(path, key))
+			return false;
+	}
+
 	for (size_t i = 0; i < size; i++)
 	{
-		data[i]->set(path, element, succes);
+		data[i]->set(path, element, success);
 	}
 
 	return false;
@@ -211,8 +239,7 @@ void JSONArray::create(MyString& path, const JSON* element)
 		
 		addElement(element);
 	}
-	else
-		throw std::exception("incorrect path!");
+	
 }
 
 JSONArray::~JSONArray()
